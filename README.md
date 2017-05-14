@@ -14,8 +14,9 @@ There are several options in the QuoteOfTheDay.dll.config that you may want to c
     
        Verse: Loads https://www.biblegateway.com/usage/votd/rss/votd.rdf from Bible Gateway and
               displays the Bible Verse of the Day. This was the original inspiration for the plugin
-              and was inspired by a viewer from a Live Developer Session who sugested we add a
-              "Bible Wheel" to LaunchBox.
+              and was inspired by Dubbloseven from a Live Developer Session who sugested we add a
+              "Bible Wheel" to LaunchBox (Let's Build Some Plugins! - 2017-05-08 - 
+              LaunchBox Development Live Streams @ 11:30).
        Quote: Loads https://feeds.feedburner.com/brainyquote/QUOTEBR from BrainyQuote.com and
               displays the Quote of the Day
        Local: Loads a local file named Quotes.xml and randomly displays a quote from this file.
