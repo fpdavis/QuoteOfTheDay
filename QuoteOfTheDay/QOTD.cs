@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Drawing;
 using System.Runtime.InteropServices; // For the P/Invoke signatures.
 using System.Threading.Tasks;
+using QuoteOfTheDay.Forms;
 
 namespace QuoteOfTheDay
 {
@@ -34,8 +35,8 @@ namespace QuoteOfTheDay
         #endregion
 
         #region Private Properties
-        private Form _oForm;
-        private Form _oBackGroundForm;
+        private frmQuote _oFrmQuote;
+        private frmQuoteBackground _oFrmQuoteBackGround;
         private string _QOTD_Type = null;
         private readonly PluginAppSettings _pas = new PluginAppSettings();
         private string QOTD_Type
@@ -60,8 +61,11 @@ namespace QuoteOfTheDay
 
         #endregion
 
-        public void DisplayQuote()
+        public void DisplayQuote(frmQuote oFrmQuote, frmQuoteBackground oFrmQuoteBackground)
         {
+            _oFrmQuote = oFrmQuote;
+            _oFrmQuoteBackGround = oFrmQuoteBackground;
+
             QOTDTypeRandomNormalization();
 
             string sQuote = string.Empty;
@@ -109,16 +113,15 @@ namespace QuoteOfTheDay
          Display Bible Gateway Verse of the Day from rss
          https://www.biblegateway.com/usage/votd/docs/
 
-          version_id is the version to display. 31 is NIV.
+          BibleVersion is the version to display. 31 is NIV.
           A complete listing of versions can be found here:
           http://www.biblegateway.com/usage/linking/versionslist/
         */
         private string GetBibleGatewayQuote()
         {
             string sQuote = string.Empty;
-
-            int iVersion = 31;
-            string sURL = "https://www.biblegateway.com/usage/votd/rss/votd.rdf?" + iVersion;
+            
+            string sURL = "https://www.biblegateway.com/usage/votd/rss/votd.rdf?" + _pas.GetString("BibleVersion");
 
             XmlDocument doc1 = new XmlDocument();
             doc1.Load(sURL);
@@ -169,23 +172,31 @@ namespace QuoteOfTheDay
         private string GetLoaclQuote()
         {
             string sQuote = string.Empty;
+            string sAuthor = string.Empty;
 
-            string sURL = this.GetType().Assembly.Location.Replace(this.GetType().Assembly.GetName().Name + ".dll", "") + "/Quotes.xml";
-
-            XmlDocument doc1 = new XmlDocument();
-            doc1.Load(sURL);
-            XmlElement root = doc1.DocumentElement;
-            XmlNodeList nodes = root.SelectNodes("/quotes/item");
-
-            if (nodes != null && nodes.Count >= 0)
+            var assemblyLocation = this.GetType().Assembly.Location;
+            if (assemblyLocation != null)
             {
-                Random oRandom = new Random();
-                int iItem = oRandom.Next(nodes.Count);
+                string sURL = assemblyLocation.Replace(this.GetType().Assembly.GetName().Name + ".dll", "") + "/Quotes.xml";
 
-                string sAuthor = nodes[iItem]["author"].InnerText;
-                sQuote = nodes[iItem]["quote"].InnerText;
+                XmlDocument doc1 = new XmlDocument();
+                doc1.Load(sURL);
+                XmlElement root = doc1.DocumentElement;
+                XmlNodeList nodes = root.SelectNodes("/quotes/item");
 
-                sQuote += " - " + sAuthor;
+                if (nodes != null && nodes.Count >= 0)
+                {
+                    Random oRandom = new Random();
+                    int iItem = oRandom.Next(nodes.Count);
+                
+                    if (nodes[iItem]["quote"] != null) sQuote = nodes[iItem]["quote"].InnerText;
+
+                    if (nodes[iItem]["author"] != null) sAuthor = nodes[iItem]["author"].InnerText;
+                    if (!string.IsNullOrWhiteSpace(sAuthor))
+                    {
+                        sQuote += " - " + sAuthor;
+                    }
+                }
             }
 
             return sQuote;
@@ -193,16 +204,13 @@ namespace QuoteOfTheDay
 
         private void ShowQuote(string sQuote)
         {
+            // Just return if nothing to show
+            if (string.IsNullOrWhiteSpace(sQuote)) return;
+
             Color oBackgroundHexColor = ColorTranslator.FromHtml(_pas.GetString("BackgroundHexColor"));
-            _oForm = new Form
-            {
-                StartPosition = FormStartPosition.Manual,
-                FormBorderStyle = FormBorderStyle.None,
-                TransparencyKey = oBackgroundHexColor,
-                BackColor = oBackgroundHexColor,
-                TopMost = true,
-                ShowInTaskbar = false
-            };
+
+            _oFrmQuote.TransparencyKey = oBackgroundHexColor;
+            _oFrmQuote.BackColor = oBackgroundHexColor;
 
             var oLaunchboxWindow = FindWindow();
 
@@ -214,31 +222,31 @@ namespace QuoteOfTheDay
                 int iBoxWidth = oLaunchBigBoxRectangle.Right - oLaunchBigBoxRectangle.Left;
                 int iBoxHeight = oLaunchBigBoxRectangle.Bottom - oLaunchBigBoxRectangle.Top;
 
-                _oForm.Width = Convert.ToInt32(iBoxWidth * _pas.GetInt("QuoteWidthPercentage") * .01);
-                _oForm.Height = Convert.ToInt32(iBoxHeight * _pas.GetInt("QuoteHeightPercentage") * .01);
-                _oForm.Location = new Point(((iBoxWidth - _oForm.Width) / 2) + oLaunchBigBoxRectangle.Left, ((iBoxHeight - _oForm.Height) / 2) + oLaunchBigBoxRectangle.Top);
+                _oFrmQuote.Width = Convert.ToInt32(iBoxWidth * _pas.GetInt("QuoteWidthPercentage") * .01);
+                _oFrmQuote.Height = Convert.ToInt32(iBoxHeight * _pas.GetInt("QuoteHeightPercentage") * .01);
+                _oFrmQuote.Location = new Point(((iBoxWidth - _oFrmQuote.Width) / 2) + oLaunchBigBoxRectangle.Left, ((iBoxHeight - _oFrmQuote.Height) / 2) + oLaunchBigBoxRectangle.Top);
             }
             else
             {
-                _oForm.Width = Convert.ToInt32(Screen.PrimaryScreen.Bounds.Width * _pas.GetInt("QuoteWidthPercentage") * .01);
-                _oForm.Height = Convert.ToInt32(Screen.PrimaryScreen.Bounds.Height * _pas.GetInt("QuoteHeightPercentage") * .01);
-                _oForm.Location = new Point((Screen.PrimaryScreen.Bounds.Width - _oForm.Width) / 2, (Screen.PrimaryScreen.Bounds.Height - _oForm.Height) / 2);
+                _oFrmQuote.Width = Convert.ToInt32(Screen.PrimaryScreen.Bounds.Width * _pas.GetInt("QuoteWidthPercentage") * .01);
+                _oFrmQuote.Height = Convert.ToInt32(Screen.PrimaryScreen.Bounds.Height * _pas.GetInt("QuoteHeightPercentage") * .01);
+                _oFrmQuote.Location = new Point((Screen.PrimaryScreen.Bounds.Width - _oFrmQuote.Width) / 2, (Screen.PrimaryScreen.Bounds.Height - _oFrmQuote.Height) / 2);
             }
 
-            Graphics oGraphics = _oForm.CreateGraphics();
+            Graphics oGraphics = _oFrmQuote.CreateGraphics();
 
-            float emSize = ((float)_oForm.Width / _pas.GetInt("MinimumCharactersPerLine"));
+            float emSize = ((float)_oFrmQuote.Width / _pas.GetInt("MinimumCharactersPerLine"));
 
             int iFontHeight;
             Font oFont = new Font(FontFamily.GenericSerif, emSize, FontStyle.Italic);
-            FindBestFitFont(oGraphics, sQuote, _oForm.ClientRectangle.Size, ref oFont, out iFontHeight);
+            FindBestFitFont(oGraphics, sQuote, _oFrmQuote.ClientRectangle.Size, ref oFont, out iFontHeight);
 
             // Resize and reposition the form to accomodate the Font height and number of lines
-            _oForm.Top += (_oForm.Height - iFontHeight) / 2;
-            _oForm.Height = iFontHeight;
+            _oFrmQuote.Top += (_oFrmQuote.Height - iFontHeight) / 2;
+            _oFrmQuote.Height = iFontHeight;
             oGraphics.Dispose();
 
-            oGraphics = _oForm.CreateGraphics();
+            oGraphics = _oFrmQuote.CreateGraphics();
 
             // opaque: 0 = invisible, 255 = fully opaque
             //for (int iOpacity = 0; iOpacity < 50; iOpacity++)
@@ -247,34 +255,45 @@ namespace QuoteOfTheDay
             //    oGraphics.Clear(oForm.TransparencyKey);
             //}
 
-             _oBackGroundForm = new Form
-            {
-                StartPosition = _oForm.StartPosition,
-                FormBorderStyle = _oForm.FormBorderStyle,
-                BackColor = oBackgroundHexColor,
-                Location = _oForm.Location,
-                Width = _oForm.Width,
-                Height = _oForm.Height,
-                ShowInTaskbar = false,
-                Opacity = _pas.GetInt("BackgroundOpacityPercentage") * .01
-            };
+            _oFrmQuoteBackGround.BackColor = oBackgroundHexColor;
+            _oFrmQuoteBackGround.Location = _oFrmQuote.Location;
+            _oFrmQuoteBackGround.Width = _oFrmQuote.Width;
+            _oFrmQuoteBackGround.Height = _oFrmQuote.Height;
+            _oFrmQuoteBackGround.Opacity = _pas.GetInt("BackgroundOpacityPercentage") * .01;
 
             Color oFontHexColor = ColorTranslator.FromHtml(_pas.GetString("FontHexColor"));
-            _oBackGroundForm.Show();
-            _oForm.Show();
-            oGraphics.DrawString(sQuote, oFont, new SolidBrush(Color.FromArgb(_pas.GetInt("TransparancyAlphaValue"), oFontHexColor)), _oForm.ClientRectangle);
-            _oForm.BringToFront();
+            _oFrmQuoteBackGround.Show();
+            _oFrmQuote.Show();
+            oGraphics.DrawString(sQuote, oFont, new SolidBrush(Color.FromArgb(_pas.GetInt("TransparancyAlphaValue"), oFontHexColor)), _oFrmQuote.ClientRectangle);
+            _oFrmQuote.BringToFront();
             
             // Form click events to dismiss the dialog are not working
-            _oForm.Click += Form_Click;
-            _oBackGroundForm.Click += Form_Click;
+            _oFrmQuote.Click += FrmQuoteClick;
+            _oFrmQuoteBackGround.Click += FrmQuoteClick;
 
-            Task oTask = Task.Delay((int)_pas.GetDecimal("SecondsToDisplayQuote") * 1000).ContinueWith(t => CloseForm(false));
-            oTask.Wait();
-
-            CloseForm(true);
+            Task.Delay((int)(_pas.GetDecimal("SecondsToDisplayQuotePerWord") * 1000 * WordCount(ref sQuote))).ContinueWith(t => CloseForm());
         }
 
+        private int WordCount(ref string sString)
+        {
+            int iWordCount = 0;
+            int iIndex = 0;
+
+            while (iIndex < sString.Length)
+            {
+                // check if current char is part of a word
+                while (iIndex < sString.Length && !char.IsWhiteSpace(sString[iIndex]))
+                    iIndex++;
+
+                iWordCount++;
+
+                // skip whitespace until next word
+                while (iIndex < sString.Length && char.IsWhiteSpace(sString[iIndex]))
+                    iIndex++;
+            }
+
+            return iWordCount;
+        }
         private IntPtr FindWindow()
         {
             IntPtr oFindWindow = new IntPtr();
@@ -302,29 +321,28 @@ namespace QuoteOfTheDay
             return oFindWindow;
         }
 
-        private void Form_Click(object sender, EventArgs e)
+        private void FrmQuoteClick(object sender, EventArgs e)
         {
-            CloseForm(false);
+            CloseForm();
         }
 
-        private void CloseForm(Boolean bCloseForm)
+        private void CloseForm()
         {
-            // Closing here from the thread/click isn't working
-            if (!bCloseForm) return;
+            _oFrmQuote?.Hide();
+            _oFrmQuoteBackGround?.Hide();
 
-            if (_oBackGroundForm != null)
+            if (_oFrmQuote != null)
             {
-                _oBackGroundForm.Hide();
-                _oBackGroundForm.Close();
-                _oBackGroundForm.Dispose();
+                _oFrmQuote.Close();
+                _oFrmQuote.Dispose();
             }
 
-            if (_oForm != null)
+            if (_oFrmQuoteBackGround != null)
             {
-                _oForm.Hide();
-                _oForm.Close();
-                _oForm.Dispose();
+                _oFrmQuoteBackGround.Close();
+                _oFrmQuoteBackGround.Dispose();
             }
+
         }
         private void FindBestFitFont(Graphics oGraphics, String sQuote, Size oAreaSize, ref Font oFont, out int iFontHeight)
         {
@@ -356,7 +374,7 @@ namespace QuoteOfTheDay
         {
             _pas.Dispose();
             _QOTD_Type = null;
-            _oForm = null;
+            _oFrmQuote = null;
         }
     }
 }
