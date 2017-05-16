@@ -54,6 +54,8 @@ There are several options in the QuoteOfTheDay.dll.config that you may want to c
                             Valid values are 0 to 255. 0 = invisible, 255 = fully opaque.
                             255 is the default value.    
 
+   BibleVersion: Integer corresponding to a list of Bible Translations to pull from.
+
     WindowNames: This is a comma seperated list of LaunchBox windows names to match against.
                  This is used to determine the size and placement of the quote. This should
                  not need to be changed. Empty or inaccurate values in this setting will
@@ -63,11 +65,9 @@ There are several options in the QuoteOfTheDay.dll.config that you may want to c
 ToDo:
 
    * Replace winforms implimentation with XAML display and figure out how to attach it directly to the application window.
-   * Give option in config file for Bible Version to use for quote.
+   * Provide full list of Bible Versions available.
    * Fade in/Fade out quotes. This turned out to be very hard using the current method, hopefully much easier with XAML.
    * Make clicking on quote or hitting a key dismiss the quote so you can get straight to the game playing!
-   * Add a flexible time element to the displaying of the quote so that longer quotes will stay on the screen longer and
-     shorter ones will disappear quicker.
    * Add a configuration screen so users don't have to open up the config file to change settings.
    * Possibly add more quote sources.
    

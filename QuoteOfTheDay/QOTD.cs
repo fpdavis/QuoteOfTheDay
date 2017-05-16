@@ -271,6 +271,13 @@ namespace QuoteOfTheDay
             _oFrmQuote.Click += FrmQuoteClick;
             _oFrmQuoteBackGround.Click += FrmQuoteClick;
 
+            // Handle the escape event - Currently not working
+            var btnCancel = new Button();
+            btnCancel.Click += FrmQuoteClick;
+            _oFrmQuote.CancelButton = btnCancel;
+            _oFrmQuoteBackGround.CancelButton = btnCancel;
+            Application.OpenForms[_oFrmQuote.Name].Focus();
+          
             Task.Delay((int)(_pas.GetDecimal("SecondsToDisplayQuotePerWord") * 1000 * WordCount(ref sQuote))).ContinueWith(t => CloseForm());
         }
 
