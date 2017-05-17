@@ -7,9 +7,11 @@ namespace QuoteOfTheDay
 {
     public class QOTD_ISystemEventsPlugin : ISystemEventsPlugin
     {
+        private readonly PluginAppSettings _pas = new PluginAppSettings();
+
         public void OnEventRaised(string eventType)
         {
-            if (eventType == SystemEventTypes.BigBoxStartupCompleted || eventType == SystemEventTypes.LaunchBoxStartupCompleted)
+            if (eventType == SystemEventTypes.BigBoxStartupCompleted && _pas.GetBoolean("ShowInBigBox") || eventType == SystemEventTypes.LaunchBoxStartupCompleted &&  _pas.GetBoolean("ShowInLaunchBox"))
             {
                 // These two forms could be redefined as one.
                 frmQuote oFrmQuote = new frmQuote();

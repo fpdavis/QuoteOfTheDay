@@ -6,20 +6,20 @@ This plugin is still in development and still has some quirks to work out as not
 To install from repository copy the \QuoteOfTheDay\QuoteOfTheDay\bin\Release folder to your LaunchoBox\Plugins folder and rename it QuoteOfTheDay.
 
 Once installed when you launch LaunchBox or BigBox you will be presented with a quote as soon as the application starts.
-The quote will stay on the screen for several seconds before disappearing.
+The quote will stay on the screen for several seconds before disappearing. Clicking on the quote will dismiss it immediatly.
 
 There are several options in the QuoteOfTheDay.dll.config that you may want to change...
 
-    QOTD_Type: Valid values are "Verse", "Quote", "Local", or "Random". Local is the default value.
+    QOTD_Type: Valid values are "Bible Gateway Verse", "Brainy Quote", "Local File", or "Random". Local File is the default value.
     
-       Verse: Loads https://www.biblegateway.com/usage/votd/rss/votd.rdf from Bible Gateway and
+      Bible Gateway Verse: Loads https://www.biblegateway.com/usage/votd/rss/votd.rdf from Bible Gateway and
               displays the Bible Verse of the Day. This was the original inspiration for the plugin
               and was inspired by Dubbloseven from a Live Developer Session who sugested we add a
               "Bible Wheel" to LaunchBox (Let's Build Some Plugins! - 2017-05-08 - 
               LaunchBox Development Live Streams @ 11:30).
-       Quote: Loads https://feeds.feedburner.com/brainyquote/QUOTEBR from BrainyQuote.com and
+      Brainy Quote: Loads https://feeds.feedburner.com/brainyquote/QUOTEBR from BrainyQuote.com and
               displays the Quote of the Day
-       Local: Loads a local file named Quotes.xml and randomly displays a quote from this file.
+      Local File: Loads a local file named Quotes.xml and randomly displays a quote from this file.
               This file contains many Video Game related quotes. This is a standard XML file and
               you can add your own quotes and remove quotes from this file as desired. 
       Random: Randomly displays one of the types listed above (Verse, Quote, or Local).
@@ -45,7 +45,7 @@ There are several options in the QuoteOfTheDay.dll.config that you may want to c
    FontHexColor: Color for the text of the quote represented in HTML color codes.
                  White, "#ffffff", is the default value.
                  
-    BackgroundHexColor: Color for the box behind the quote. Gray, "#333333" is the default value.
+    BackgroundColor: Color for the box behind the quote. Gray, "#333333" is the default value.
     
     BackgroundOpacityPercentage: Allows you to specify how translucent/opaque the box behind the quote will be.
                              Opacity Percentage can be between 0 and 100. 60 is the default valule.
@@ -67,8 +67,10 @@ ToDo:
    * Replace winforms implimentation with XAML display and figure out how to attach it directly to the application window.
    * Provide full list of Bible Versions available.
    * Fade in/Fade out quotes. This turned out to be very hard using the current method, hopefully much easier with XAML.
-   * Make clicking on quote or hitting a key dismiss the quote so you can get straight to the game playing!
-   * Add a configuration screen so users don't have to open up the config file to change settings.
+   * Make hitting a key dismiss the quote so you can get straight to the game playing!
+   * Fix Test button on Settings dialog.
+   * Make Test button work without having to save settings.
+   * Tweak background colors for text boxes on Settings dialog (sometimes font and background color can be too close in color).
    * Possibly add more quote sources.
    
    

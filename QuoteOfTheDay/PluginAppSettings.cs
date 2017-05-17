@@ -6,13 +6,13 @@ namespace QuoteOfTheDay
 {
     public class PluginAppSettings : IDisposable
     {
-        private Configuration _DLLConfig = null;
+        private Configuration _PluginConfig = null;
 
-        private Configuration DLLConfig
+        private Configuration PluginConfig
         {
             get
             {
-                if (_DLLConfig != null) return _DLLConfig;
+                if (_PluginConfig != null) return _PluginConfig;
 
                 Configuration oConfiguration = null;
                 string exeConfigPath = this.GetType().Assembly.Location;
@@ -27,9 +27,9 @@ namespace QuoteOfTheDay
                                ex.Message);
                 }
 
-                _DLLConfig = oConfiguration;
+                _PluginConfig = oConfiguration;
 
-                return _DLLConfig;
+                return _PluginConfig;
             }
         }
 
@@ -63,7 +63,7 @@ namespace QuoteOfTheDay
         public string GetString(string key)
         {
             // We will use the Plugin's App.config file if it exists AND it contains a key/value pair
-            KeyValueConfigurationElement element = DLLConfig?.AppSettings.Settings[key];
+            KeyValueConfigurationElement element = PluginConfig?.AppSettings.Settings[key];
             if (!string.IsNullOrEmpty(element?.Value))
                 return element.Value;
 
@@ -76,9 +76,30 @@ namespace QuoteOfTheDay
             return string.Empty;
         }
 
+        public void SetString(string key, string value)
+        {
+            if (PluginConfig != null && key!=null && value != null)
+            {
+                if (PluginConfig.AppSettings.Settings[key] != null)
+                {
+                    PluginConfig.AppSettings.Settings[key].Value = value;
+                }
+                else
+                {
+                    MessageBox.Show("Warning: The AppSetting Key (" + key + ") doesn't exist in " + PluginConfig.FilePath);
+                }
+            }
+        }
+
+        public void Save()
+        {
+            PluginConfig.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+        }
+
         public void Dispose()
         {
-            _DLLConfig = null;
+            _PluginConfig = null;
         }
     }
 }

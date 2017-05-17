@@ -4,6 +4,7 @@ using System.Xml;
 using System.Windows.Forms;
 using System.Globalization;
 using System.Drawing;
+using System.IO;
 using System.Runtime.InteropServices; // For the P/Invoke signatures.
 using System.Threading.Tasks;
 using QuoteOfTheDay.Forms;
@@ -72,13 +73,13 @@ namespace QuoteOfTheDay
 
             switch (QOTD_Type)
             {
-                case "Verse":
+                case "Bible Gateway Verse":
                     sQuote = GetBibleGatewayQuote();
                     break;
-                case "Quote":
+                case "Brainy Quote":
                     sQuote = GetBrainyQuoteQuote();
                     break;
-                case "Local":
+                case "Local File":
                     sQuote = GetLoaclQuote();
                     break;
             }
@@ -171,14 +172,25 @@ namespace QuoteOfTheDay
 
         private string GetLoaclQuote()
         {
+            string sURL = null;
             string sQuote = string.Empty;
             string sAuthor = string.Empty;
 
-            var assemblyLocation = this.GetType().Assembly.Location;
-            if (assemblyLocation != null)
+            if (!string.IsNullOrWhiteSpace(_pas.GetString("LocalFileLocation")))
+                {
+                    sURL = _pas.GetString("LocalFileLocation");
+                }
+            else
             {
-                string sURL = assemblyLocation.Replace(this.GetType().Assembly.GetName().Name + ".dll", "") + "/Quotes.xml";
-
+                var assemblyLocation = this.GetType().Assembly.Location;
+                if (assemblyLocation != null)
+                {
+                    sURL = assemblyLocation.Replace(this.GetType().Assembly.GetName().Name + ".dll", "") + "Quotes.xml";
+                }
+            }
+            
+            if (!string.IsNullOrWhiteSpace(sURL) && File.Exists(sURL))
+            {
                 XmlDocument doc1 = new XmlDocument();
                 doc1.Load(sURL);
                 XmlElement root = doc1.DocumentElement;
@@ -206,11 +218,16 @@ namespace QuoteOfTheDay
         {
             // Just return if nothing to show
             if (string.IsNullOrWhiteSpace(sQuote)) return;
-
-            Color oBackgroundHexColor = ColorTranslator.FromHtml(_pas.GetString("BackgroundHexColor"));
-
-            _oFrmQuote.TransparencyKey = oBackgroundHexColor;
-            _oFrmQuote.BackColor = oBackgroundHexColor;
+            
+            Color oBackgroundColor = Color.Gray;
+            var oColor = new ColorConverter().ConvertFromInvariantString(_pas.GetString("BackgroundColor"));
+            if (oColor != null)
+            {
+                oBackgroundColor = (Color)oColor;
+            }
+          
+            _oFrmQuote.TransparencyKey = oBackgroundColor;
+            _oFrmQuote.BackColor = oBackgroundColor;
 
             var oLaunchboxWindow = FindWindow();
 
@@ -238,7 +255,17 @@ namespace QuoteOfTheDay
             float emSize = ((float)_oFrmQuote.Width / _pas.GetInt("MinimumCharactersPerLine"));
 
             int iFontHeight;
-            Font oFont = new Font(FontFamily.GenericSerif, emSize, FontStyle.Italic);
+            Font oFont = new FontConverter().ConvertFromInvariantString(_pas.GetString("FontStyle")) as Font;
+
+            if (oFont != null)
+            {
+                oFont = new Font(oFont.Name, (float)emSize, oFont.Style);
+            }
+            else
+            {
+                oFont = new Font(FontFamily.GenericSerif, emSize, FontStyle.Italic); 
+            }
+
             FindBestFitFont(oGraphics, sQuote, _oFrmQuote.ClientRectangle.Size, ref oFont, out iFontHeight);
 
             // Resize and reposition the form to accomodate the Font height and number of lines
@@ -255,19 +282,25 @@ namespace QuoteOfTheDay
             //    oGraphics.Clear(oForm.TransparencyKey);
             //}
 
-            _oFrmQuoteBackGround.BackColor = oBackgroundHexColor;
+            _oFrmQuoteBackGround.BackColor = oBackgroundColor;
             _oFrmQuoteBackGround.Location = _oFrmQuote.Location;
             _oFrmQuoteBackGround.Width = _oFrmQuote.Width;
             _oFrmQuoteBackGround.Height = _oFrmQuote.Height;
             _oFrmQuoteBackGround.Opacity = _pas.GetInt("BackgroundOpacityPercentage") * .01;
 
-            Color oFontHexColor = ColorTranslator.FromHtml(_pas.GetString("FontHexColor"));
+            Color oFontColor = Color.White;
+            oColor = new ColorConverter().ConvertFromInvariantString(_pas.GetString("FontColor"));
+            if (oColor != null)
+            {
+                oFontColor = (Color)oColor;
+            }
+
             _oFrmQuoteBackGround.Show();
             _oFrmQuote.Show();
-            oGraphics.DrawString(sQuote, oFont, new SolidBrush(Color.FromArgb(_pas.GetInt("TransparancyAlphaValue"), oFontHexColor)), _oFrmQuote.ClientRectangle);
+            oGraphics.DrawString(sQuote, oFont, new SolidBrush(Color.FromArgb(_pas.GetInt("TransparancyAlphaValue"), oFontColor)), _oFrmQuote.ClientRectangle);
             _oFrmQuote.BringToFront();
             
-            // Form click events to dismiss the dialog are not working
+            // Form click events to dismiss the dialog
             _oFrmQuote.Click += FrmQuoteClick;
             _oFrmQuoteBackGround.Click += FrmQuoteClick;
 
