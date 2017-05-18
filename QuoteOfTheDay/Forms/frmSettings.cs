@@ -2,7 +2,13 @@
 using System.Drawing;
 using System.Globalization;
 using System.IO;
+using System.Net;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml.Linq;
 using QuoteOfTheDay.Forms;
 
 namespace QuoteOfTheDay
@@ -10,45 +16,26 @@ namespace QuoteOfTheDay
     public partial class frmSettings : Form
     {
         private readonly PluginAppSettings _pas = new PluginAppSettings();
+        private frmQuote _oFrmQuote;
+        private frmQuoteBackground _oFrmQuoteBackground;
+
+        private int _frmSettingsStartingHeight;
+        private int _txtFontStyleStartingHeight;
+        private int _txtFontStylePreviousHeight;
 
         public frmSettings()
         {
             InitializeComponent();
-        }
-
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-
-        private void btnSave_Click(object sender, EventArgs e)
-        {
-            _pas.SetString("ShowInBigBox", chkBigBox.Checked.ToString());
-            _pas.SetString("ShowInLaunchBox", chkLaunchBox.Checked.ToString());
-
-            _pas.SetString("QOTD_Type", cmbQOTD_Type.SelectedItem.ToString());
-            _pas.SetString("LocalFileLocation", txtLocalFileLocation.Text);
-
-            _pas.SetString("FontStyle", new FontConverter().ConvertToInvariantString(fontDialog1.Font));
-            _pas.SetString("FontColor", new ColorConverter().ConvertToInvariantString(fontDialog1.Color));
-            _pas.SetString("BackgroundColor", new ColorConverter().ConvertToInvariantString(colorDialog1.Color));
-            
-            _pas.SetString("SecondsToDisplayQuotePerWord", nudSecondsToDisplayQuotePerWord.Text);
-            _pas.SetString("BackgroundOpacityPercentage", nudBackgroundOpacityPercentage.Text);
-            _pas.SetString("TransparancyAlphaValue", nudTransparancyAlphaValue.Text);
-            _pas.SetString("MaxNumberOfLines", nudMaxNumberOfLines.Text);
-
-            _pas.Save();
-
-            btnSave.Enabled = false;
-            btnTest.Enabled = true;
+            SetHelpText();
+            _frmSettingsStartingHeight = this.Height;
+            _txtFontStyleStartingHeight = txtFontStyle.Height;
         }
 
         private void frmSettings_Load(object sender, EventArgs e)
         {
             chkLaunchBox.Checked = _pas.GetBoolean("ShowInLaunchBox");
             chkBigBox.Checked = _pas.GetBoolean("ShowInBigBox");
-
+            
             cmbQOTD_Type.SelectedItem = CultureInfo.CurrentCulture.TextInfo.ToTitleCase(_pas.GetString("QOTD_Type"));
 
             if (!string.IsNullOrWhiteSpace(_pas.GetString("LocalFileLocation")) && File.Exists(_pas.GetString("LocalFileLocation")))
@@ -63,6 +50,9 @@ namespace QuoteOfTheDay
                     txtLocalFileLocation.Text = assemblyLocation.Replace(this.GetType().Assembly.GetName().Name + ".dll", "") + "Quotes.xml";
                 }
             }
+
+            openFileDialog1.InitialDirectory = Path.GetDirectoryName(txtLocalFileLocation.Text);
+            openFileDialog1.FileName = txtLocalFileLocation.Text;
 
             fontDialog1.Font = new FontConverter().ConvertFromInvariantString(_pas.GetString("FontStyle")) as Font;
             if (fontDialog1.Font != null)
@@ -96,15 +86,96 @@ namespace QuoteOfTheDay
             nudBackgroundOpacityPercentage.Text = _pas.GetString("BackgroundOpacityPercentage");
             nudTransparancyAlphaValue.Text = _pas.GetString("TransparancyAlphaValue");
             nudMaxNumberOfLines.Text = _pas.GetString("MaxNumberOfLines");
-            
+
+            cmbAutomaticUpdates.SelectedItem = _pas.GetBoolean("AutomaticUpdates") ? "On" : "Off";
+
             btnSave.Enabled = false;
             btnTest.Enabled = true;
+            btnCheckForUpdates.Enabled = true;
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            if (btnSave.Enabled)
+            {
+                var oMessageBoxResults = MessageBox.Show("You have unsaved changes. Do you wish to save your changes?",
+                    "Save Changes?", MessageBoxButtons.YesNoCancel);
+
+                if (oMessageBoxResults == DialogResult.Cancel) return;
+
+                if (oMessageBoxResults == DialogResult.Yes) btnSave_Click(sender, e);
+                else _pas.ReloadConfiguration();
+            }
+
+            CloseForms();
+            this.Close();
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            StoreSettingsInAppStrings();
+
+            _pas.Save();
+
+            btnSave.Enabled = false;
+            btnCheckForUpdates.Enabled = true;
+        }
+
+        private void StoreSettingsInAppStrings()
+        {
+            _pas.SetString("ShowInBigBox", chkBigBox.Checked.ToString());
+            _pas.SetString("ShowInLaunchBox", chkLaunchBox.Checked.ToString());
+
+            _pas.SetString("QOTD_Type", cmbQOTD_Type.SelectedItem.ToString());
+            _pas.SetString("LocalFileLocation", txtLocalFileLocation.Text);
+
+            _pas.SetString("FontStyle", new FontConverter().ConvertToInvariantString(fontDialog1.Font));
+            _pas.SetString("FontColor", new ColorConverter().ConvertToInvariantString(fontDialog1.Color));
+            _pas.SetString("BackgroundColor", new ColorConverter().ConvertToInvariantString(colorDialog1.Color));
+
+            _pas.SetString("SecondsToDisplayQuotePerWord", nudSecondsToDisplayQuotePerWord.Text);
+            _pas.SetString("BackgroundOpacityPercentage", nudBackgroundOpacityPercentage.Text);
+            _pas.SetString("TransparancyAlphaValue", nudTransparancyAlphaValue.Text);
+            _pas.SetString("MaxNumberOfLines", nudMaxNumberOfLines.Text);
+            
+            _pas.SetString("AutomaticUpdates", cmbAutomaticUpdates.SelectedItem.ToString() == "On" ? "True" : "False");
+        }
+
+        private void SetHelpText()
+        {
+            helpProvider1.SetHelpString(chkBigBox, _pas.GetString("ShowInBigBox_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(chkLaunchBox, _pas.GetString("ShowInLaunchBox_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(cmbQOTD_Type, _pas.GetString("QOTD_Type_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(txtLocalFileLocation, _pas.GetString("LocalFileLocation_Help").Replace("  ", " "));
+
+            helpProvider1.SetHelpString(txtFontStyle, _pas.GetString("FontStyle_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(txtBackgroundColor, _pas.GetString("BackgroundColor_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(nudSecondsToDisplayQuotePerWord, _pas.GetString("SecondsToDisplayQuotePerWord_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(nudBackgroundOpacityPercentage, _pas.GetString("BackgroundOpacityPercentage_Help").Replace("  ", " "));
+
+            helpProvider1.SetHelpString(nudTransparancyAlphaValue, _pas.GetString("TransparancyAlphaValue_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(nudMaxNumberOfLines, _pas.GetString("MaxNumberOfLines_Help").Replace("  ", " "));
+            helpProvider1.SetHelpString(cmbAutomaticUpdates, _pas.GetString("AutomaticUpdates_Help").Replace("  ", " "));
+
         }
 
         private void ValueChanged(object sender, EventArgs e)
         {
             btnSave.Enabled = true;
-            btnTest.Enabled = false;
+            btnCheckForUpdates.Enabled = false;
+        }
+
+        private void txtLocalFileLocation_Leave(object sender, EventArgs e)
+        {
+            if (!File.Exists(txtLocalFileLocation.Text))
+            {
+                MessageBox.Show("The file specified could not be found!", "File not found error", MessageBoxButtons.OK);
+                txtLocalFileLocation.Text = openFileDialog1.FileName;
+            }
+            else
+            {
+                ValueChanged(sender, e);
+            }
         }
 
         private void CheckIfLocalFile()
@@ -148,12 +219,10 @@ namespace QuoteOfTheDay
 
         private void btnOpenFileDialog_Click(object sender, EventArgs e)
         {
-            openFileDialog1.InitialDirectory = txtLocalFileLocation.Text;
-
+            openFileDialog1.FileName = string.Empty;
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 txtLocalFileLocation.Text = openFileDialog1.FileName; // Assumes only one file was selected
-                CheckIfLocalFile();
 
                 ValueChanged(sender, e);
             }
@@ -182,18 +251,55 @@ namespace QuoteOfTheDay
             }
         }
 
-        private void button1_Click(object sender, EventArgs e)
+        private void txtFontStyle_SizeChanged(object sender, EventArgs e)
         {
-            // These two forms could be redefined as one.
-            frmQuote oFrmQuote = new frmQuote();
-            frmQuoteBackground oFrmQuoteBackground = new frmQuoteBackground();
+            if (txtFontStyle.Height == _txtFontStylePreviousHeight) return;
 
-            oFrmQuoteBackground.Show();
-            oFrmQuote.Show();
-            oFrmQuoteBackground.Hide();
-            oFrmQuote.Hide();
-            
-            new Qotd().DisplayQuote(oFrmQuote, oFrmQuoteBackground);
+            _txtFontStylePreviousHeight = txtFontStyle.Height;
+            this.Height = _frmSettingsStartingHeight - _txtFontStyleStartingHeight + txtFontStyle.Height;
         }
+
+        private void btnTest_Click(object sender, EventArgs e)
+        {
+            StoreSettingsInAppStrings();
+
+            CloseForms();
+
+            _oFrmQuote = new frmQuote();
+            _oFrmQuoteBackground = new frmQuoteBackground(_oFrmQuote);
+
+            _oFrmQuote.ofrmQuoteBackground = _oFrmQuoteBackground;
+
+            _oFrmQuoteBackground.Show();
+            _oFrmQuote.Show();
+            _oFrmQuoteBackground.Hide();
+            _oFrmQuote.Hide();
+
+            Task.Delay((int)100).ContinueWith(t => new Qotd().DisplayQuote(_oFrmQuote, _oFrmQuoteBackground, _pas));
+        }
+
+        private void CloseForms()
+        {
+            if (_oFrmQuote != null)
+            {
+                _oFrmQuote.Close();
+                _oFrmQuote.Dispose();
+            }
+
+            if (_oFrmQuoteBackground != null)
+            {
+                _oFrmQuoteBackground.Close();
+                _oFrmQuoteBackground.Dispose();
+            }
+        }
+
+        private void btnCheckForUpdates_Click(object sender, EventArgs e)
+        {
+
+           _pas.SetString("AutomaticUpdates", "False");
+
+            new Update(_pas);
+        }
+        
     }
 }

@@ -14,23 +14,34 @@ namespace QuoteOfTheDay
             {
                 if (_PluginConfig != null) return _PluginConfig;
 
-                Configuration oConfiguration = null;
-                string exeConfigPath = this.GetType().Assembly.Location;
-                try
-                {
-                    oConfiguration = ConfigurationManager.OpenExeConfiguration(exeConfigPath);
-                }
-                catch (Exception ex)
-                {
-                    //handle errror here.. means DLL has no sattelite configuration file.
-                    MessageBox.Show("Error while trying to load Plugin Configuration file for Quote of the Day. " +
-                               ex.Message);
-                }
-
-                _PluginConfig = oConfiguration;
-
-                return _PluginConfig;
+                return LoadConfiguration();
             }
+        }
+
+        private Configuration LoadConfiguration()
+        {
+            Configuration oConfiguration = null;
+            string exeConfigPath = this.GetType().Assembly.Location;
+            try
+            {
+                oConfiguration = ConfigurationManager.OpenExeConfiguration(exeConfigPath);
+            }
+            catch (Exception ex)
+            {
+                //handle errror here.. means DLL has no sattelite configuration file.
+                MessageBox.Show("Error while trying to load Plugin Configuration file for Quote of the Day. " +
+                                ex.Message);
+            }
+
+            _PluginConfig = oConfiguration;
+
+            return _PluginConfig;
+        }
+
+        public void ReloadConfiguration()
+        {
+            LoadConfiguration();
+
         }
 
         public Boolean GetBoolean(String key)

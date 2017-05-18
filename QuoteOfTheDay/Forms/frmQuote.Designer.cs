@@ -43,6 +43,8 @@
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.TopMost = true;
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmQuote_KeyDown);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.frmQuote_MouseClick);
             this.ResumeLayout(false);
 
         }

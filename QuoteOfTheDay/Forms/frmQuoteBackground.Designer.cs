@@ -42,6 +42,8 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.frmQuoteBackground_KeyDown);
+            this.MouseClick += new System.Windows.Forms.MouseEventHandler(this.frmQuoteBackground_MouseClick);
             this.ResumeLayout(false);
 
         }

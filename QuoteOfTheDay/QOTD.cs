@@ -37,9 +37,9 @@ namespace QuoteOfTheDay
 
         #region Private Properties
         private frmQuote _oFrmQuote;
-        private frmQuoteBackground _oFrmQuoteBackGround;
+        private frmQuoteBackground _oFrmQuoteBackground;
         private string _QOTD_Type = null;
-        private readonly PluginAppSettings _pas = new PluginAppSettings();
+        private PluginAppSettings _pas;
         private string QOTD_Type
         {
             get
@@ -62,10 +62,11 @@ namespace QuoteOfTheDay
 
         #endregion
 
-        public void DisplayQuote(frmQuote oFrmQuote, frmQuoteBackground oFrmQuoteBackground)
+        public void DisplayQuote(frmQuote oFrmQuote, frmQuoteBackground oFrmQuoteBackground, PluginAppSettings oPluginAppSettings)
         {
             _oFrmQuote = oFrmQuote;
-            _oFrmQuoteBackGround = oFrmQuoteBackground;
+            _oFrmQuoteBackground = oFrmQuoteBackground;
+            _pas = oPluginAppSettings;
 
             QOTDTypeRandomNormalization();
 
@@ -219,7 +220,7 @@ namespace QuoteOfTheDay
             // Just return if nothing to show
             if (string.IsNullOrWhiteSpace(sQuote)) return;
             
-            Color oBackgroundColor = Color.Gray;
+            Color oBackgroundColor = Color.Black;
             var oColor = new ColorConverter().ConvertFromInvariantString(_pas.GetString("BackgroundColor"));
             if (oColor != null)
             {
@@ -272,21 +273,13 @@ namespace QuoteOfTheDay
             _oFrmQuote.Top += (_oFrmQuote.Height - iFontHeight) / 2;
             _oFrmQuote.Height = iFontHeight;
             oGraphics.Dispose();
-
-            oGraphics = _oFrmQuote.CreateGraphics();
-
-            // opaque: 0 = invisible, 255 = fully opaque
-            //for (int iOpacity = 0; iOpacity < 50; iOpacity++)
-            //{
-            //    System.Threading.Thread.Sleep(10);
-            //    oGraphics.Clear(oForm.TransparencyKey);
-            //}
-
-            _oFrmQuoteBackGround.BackColor = oBackgroundColor;
-            _oFrmQuoteBackGround.Location = _oFrmQuote.Location;
-            _oFrmQuoteBackGround.Width = _oFrmQuote.Width;
-            _oFrmQuoteBackGround.Height = _oFrmQuote.Height;
-            _oFrmQuoteBackGround.Opacity = _pas.GetInt("BackgroundOpacityPercentage") * .01;
+            
+            _oFrmQuoteBackground.BackColor = oBackgroundColor;
+            _oFrmQuoteBackground.Location = _oFrmQuote.Location;
+            _oFrmQuoteBackground.Width = _oFrmQuote.Width;
+            _oFrmQuoteBackground.Height = _oFrmQuote.Height;
+            _oFrmQuoteBackground.Opacity = _pas.GetInt("BackgroundOpacityPercentage") * .01;
+            _oFrmQuoteBackground.Show();
 
             Color oFontColor = Color.White;
             oColor = new ColorConverter().ConvertFromInvariantString(_pas.GetString("FontColor"));
@@ -295,23 +288,17 @@ namespace QuoteOfTheDay
                 oFontColor = (Color)oColor;
             }
 
-            _oFrmQuoteBackGround.Show();
-            _oFrmQuote.Show();
-            oGraphics.DrawString(sQuote, oFont, new SolidBrush(Color.FromArgb(_pas.GetInt("TransparancyAlphaValue"), oFontColor)), _oFrmQuote.ClientRectangle);
-            _oFrmQuote.BringToFront();
-            
-            // Form click events to dismiss the dialog
-            _oFrmQuote.Click += FrmQuoteClick;
-            _oFrmQuoteBackGround.Click += FrmQuoteClick;
+            int iSecondsToDisplay = (int)(_pas.GetDecimal("SecondsToDisplayQuotePerWord") * 1000 * WordCount(ref sQuote));
 
-            // Handle the escape event - Currently not working
-            var btnCancel = new Button();
-            btnCancel.Click += FrmQuoteClick;
-            _oFrmQuote.CancelButton = btnCancel;
-            _oFrmQuoteBackGround.CancelButton = btnCancel;
+            _oFrmQuote.Show();
+
+            oGraphics = _oFrmQuote.CreateGraphics();
+            oGraphics.DrawString(sQuote, oFont, new SolidBrush(Color.FromArgb(_pas.GetInt("TransparancyAlphaValue"), oFontColor)), _oFrmQuote.ClientRectangle);
+            
+           Task.Delay(iSecondsToDisplay).ContinueWith(t => CloseForms());
+            _oFrmQuote.ShowAndClose(iSecondsToDisplay);
+
             Application.OpenForms[_oFrmQuote.Name].Focus();
-          
-            Task.Delay((int)(_pas.GetDecimal("SecondsToDisplayQuotePerWord") * 1000 * WordCount(ref sQuote))).ContinueWith(t => CloseForm());
         }
 
         private int WordCount(ref string sString)
@@ -361,28 +348,19 @@ namespace QuoteOfTheDay
             return oFindWindow;
         }
 
-        private void FrmQuoteClick(object sender, EventArgs e)
+        private void CloseForms()
         {
-            CloseForm();
-        }
-
-        private void CloseForm()
-        {
-            _oFrmQuote?.Hide();
-            _oFrmQuoteBackGround?.Hide();
-
             if (_oFrmQuote != null)
             {
                 _oFrmQuote.Close();
                 _oFrmQuote.Dispose();
             }
 
-            if (_oFrmQuoteBackGround != null)
+            if (_oFrmQuoteBackground != null)
             {
-                _oFrmQuoteBackGround.Close();
-                _oFrmQuoteBackGround.Dispose();
+                _oFrmQuoteBackground.Close();
+                _oFrmQuoteBackground.Dispose();
             }
-
         }
         private void FindBestFitFont(Graphics oGraphics, String sQuote, Size oAreaSize, ref Font oFont, out int iFontHeight)
         {
@@ -412,9 +390,7 @@ namespace QuoteOfTheDay
 
         public void Dispose()
         {
-            _pas.Dispose();
             _QOTD_Type = null;
-            _oFrmQuote = null;
         }
     }
 }

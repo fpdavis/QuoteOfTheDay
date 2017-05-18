@@ -55,6 +55,10 @@
             this.nudSecondsToDisplayQuotePerWord = new System.Windows.Forms.NumericUpDown();
             this.btnOpenFileDialog = new System.Windows.Forms.Button();
             this.btnTest = new System.Windows.Forms.Button();
+            this.btnCheckForUpdates = new System.Windows.Forms.Button();
+            this.helpProvider1 = new System.Windows.Forms.HelpProvider();
+            this.label4 = new System.Windows.Forms.Label();
+            this.cmbAutomaticUpdates = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudBackgroundOpacityPercentage)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudTransparancyAlphaValue)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxNumberOfLines)).BeginInit();
@@ -65,10 +69,10 @@
             // 
             this.btnSave.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnSave.Enabled = false;
-            this.btnSave.Location = new System.Drawing.Point(276, 282);
+            this.btnSave.Location = new System.Drawing.Point(276, 303);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 24;
+            this.btnSave.TabIndex = 25;
             this.btnSave.Text = "&Save";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
@@ -77,10 +81,10 @@
             // 
             this.btnClose.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnClose.Location = new System.Drawing.Point(195, 282);
+            this.btnClose.Location = new System.Drawing.Point(198, 303);
             this.btnClose.Name = "btnClose";
             this.btnClose.Size = new System.Drawing.Size(75, 23);
-            this.btnClose.TabIndex = 23;
+            this.btnClose.TabIndex = 24;
             this.btnClose.Text = "&Close";
             this.btnClose.UseVisualStyleBackColor = true;
             this.btnClose.Click += new System.EventHandler(this.btnCancel_Click);
@@ -98,8 +102,10 @@
             // chkLaunchBox
             // 
             this.chkLaunchBox.AutoSize = true;
+            this.helpProvider1.SetHelpString(this.chkLaunchBox, "If checked, will show on start of LaunchBox");
             this.chkLaunchBox.Location = new System.Drawing.Point(85, 27);
             this.chkLaunchBox.Name = "chkLaunchBox";
+            this.helpProvider1.SetShowHelp(this.chkLaunchBox, true);
             this.chkLaunchBox.Size = new System.Drawing.Size(80, 17);
             this.chkLaunchBox.TabIndex = 2;
             this.chkLaunchBox.Text = "LaunchBox";
@@ -109,8 +115,10 @@
             // chkBigBox
             // 
             this.chkBigBox.AutoSize = true;
+            this.helpProvider1.SetHelpString(this.chkBigBox, "If checked, will show on start of BigBox");
             this.chkBigBox.Location = new System.Drawing.Point(169, 27);
             this.chkBigBox.Name = "chkBigBox";
+            this.helpProvider1.SetShowHelp(this.chkBigBox, true);
             this.chkBigBox.Size = new System.Drawing.Size(59, 17);
             this.chkBigBox.TabIndex = 3;
             this.chkBigBox.Text = "BigBox";
@@ -132,6 +140,7 @@
             this.cmbQOTD_Type.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cmbQOTD_Type.FormattingEnabled = true;
+            this.helpProvider1.SetHelpString(this.cmbQOTD_Type, "Specifies where to get the text to display from");
             this.cmbQOTD_Type.Items.AddRange(new object[] {
             "Local File",
             "Brainy Quote",
@@ -139,6 +148,7 @@
             "Random"});
             this.cmbQOTD_Type.Location = new System.Drawing.Point(85, 55);
             this.cmbQOTD_Type.Name = "cmbQOTD_Type";
+            this.helpProvider1.SetShowHelp(this.cmbQOTD_Type, true);
             this.cmbQOTD_Type.Size = new System.Drawing.Size(175, 21);
             this.cmbQOTD_Type.TabIndex = 5;
             this.cmbQOTD_Type.SelectedValueChanged += new System.EventHandler(this.cmbQOTD_Type_SelectedValueChanged);
@@ -160,7 +170,7 @@
             this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(57, 196);
+            this.label3.Location = new System.Drawing.Point(57, 195);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(195, 13);
             this.label3.TabIndex = 16;
@@ -169,7 +179,7 @@
             // nudBackgroundOpacityPercentage
             // 
             this.nudBackgroundOpacityPercentage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudBackgroundOpacityPercentage.Location = new System.Drawing.Point(257, 192);
+            this.nudBackgroundOpacityPercentage.Location = new System.Drawing.Point(257, 191);
             this.nudBackgroundOpacityPercentage.Name = "nudBackgroundOpacityPercentage";
             this.nudBackgroundOpacityPercentage.Size = new System.Drawing.Size(46, 20);
             this.nudBackgroundOpacityPercentage.TabIndex = 17;
@@ -180,7 +190,7 @@
             this.label5.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(116, 148);
+            this.label5.Location = new System.Drawing.Point(140, 147);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(112, 13);
             this.label5.TabIndex = 12;
@@ -191,7 +201,7 @@
             this.label6.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label6.AutoSize = true;
             this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(92, 220);
+            this.label6.Location = new System.Drawing.Point(92, 219);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(160, 13);
             this.label6.TabIndex = 18;
@@ -200,7 +210,7 @@
             // nudTransparancyAlphaValue
             // 
             this.nudTransparancyAlphaValue.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudTransparancyAlphaValue.Location = new System.Drawing.Point(257, 216);
+            this.nudTransparancyAlphaValue.Location = new System.Drawing.Point(257, 215);
             this.nudTransparancyAlphaValue.Maximum = new decimal(new int[] {
             255,
             0,
@@ -216,7 +226,7 @@
             this.label7.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label7.AutoSize = true;
             this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label7.Location = new System.Drawing.Point(27, 172);
+            this.label7.Location = new System.Drawing.Point(27, 171);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(227, 13);
             this.label7.TabIndex = 14;
@@ -227,7 +237,7 @@
             this.txtBackgroundColor.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBackgroundColor.BackColor = System.Drawing.SystemColors.Window;
-            this.txtBackgroundColor.Location = new System.Drawing.Point(257, 144);
+            this.txtBackgroundColor.Location = new System.Drawing.Point(257, 143);
             this.txtBackgroundColor.Name = "txtBackgroundColor";
             this.txtBackgroundColor.ReadOnly = true;
             this.txtBackgroundColor.Size = new System.Drawing.Size(85, 20);
@@ -239,7 +249,7 @@
             this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label9.AutoSize = true;
             this.label9.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label9.Location = new System.Drawing.Point(92, 244);
+            this.label9.Location = new System.Drawing.Point(92, 243);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(160, 13);
             this.label9.TabIndex = 20;
@@ -248,7 +258,7 @@
             // nudMaxNumberOfLines
             // 
             this.nudMaxNumberOfLines.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.nudMaxNumberOfLines.Location = new System.Drawing.Point(257, 240);
+            this.nudMaxNumberOfLines.Location = new System.Drawing.Point(257, 239);
             this.nudMaxNumberOfLines.Maximum = new decimal(new int[] {
             255,
             0,
@@ -278,11 +288,13 @@
             this.txtLocalFileLocation.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLocalFileLocation.Enabled = false;
+            this.helpProvider1.SetHelpString(this.txtLocalFileLocation, "");
             this.txtLocalFileLocation.Location = new System.Drawing.Point(85, 82);
             this.txtLocalFileLocation.Name = "txtLocalFileLocation";
+            this.helpProvider1.SetShowHelp(this.txtLocalFileLocation, true);
             this.txtLocalFileLocation.Size = new System.Drawing.Size(175, 20);
             this.txtLocalFileLocation.TabIndex = 7;
-            this.txtLocalFileLocation.TextChanged += new System.EventHandler(this.ValueChanged);
+            this.txtLocalFileLocation.Leave += new System.EventHandler(this.txtLocalFileLocation_Leave);
             // 
             // lblLocalFile
             // 
@@ -321,6 +333,7 @@
             this.txtFontStyle.Size = new System.Drawing.Size(85, 20);
             this.txtFontStyle.TabIndex = 11;
             this.txtFontStyle.Click += new System.EventHandler(this.txtFontStyle_Click);
+            this.txtFontStyle.SizeChanged += new System.EventHandler(this.txtFontStyle_SizeChanged);
             // 
             // nudSecondsToDisplayQuotePerWord
             // 
@@ -331,7 +344,7 @@
             0,
             0,
             65536});
-            this.nudSecondsToDisplayQuotePerWord.Location = new System.Drawing.Point(257, 168);
+            this.nudSecondsToDisplayQuotePerWord.Location = new System.Drawing.Point(257, 167);
             this.nudSecondsToDisplayQuotePerWord.Maximum = new decimal(new int[] {
             2,
             0,
@@ -362,20 +375,60 @@
             // btnTest
             // 
             this.btnTest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnTest.Location = new System.Drawing.Point(10, 282);
+            this.btnTest.Location = new System.Drawing.Point(120, 303);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(75, 23);
-            this.btnTest.TabIndex = 22;
+            this.btnTest.TabIndex = 23;
             this.btnTest.Text = "&Test";
             this.btnTest.UseVisualStyleBackColor = true;
-            this.btnTest.Click += new System.EventHandler(this.button1_Click);
+            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
+            // 
+            // btnCheckForUpdates
+            // 
+            this.btnCheckForUpdates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnCheckForUpdates.Location = new System.Drawing.Point(12, 303);
+            this.btnCheckForUpdates.Name = "btnCheckForUpdates";
+            this.btnCheckForUpdates.Size = new System.Drawing.Size(105, 23);
+            this.btnCheckForUpdates.TabIndex = 22;
+            this.btnCheckForUpdates.Text = "Check for &Updates";
+            this.btnCheckForUpdates.UseVisualStyleBackColor = true;
+            this.btnCheckForUpdates.Click += new System.EventHandler(this.btnCheckForUpdates_Click);
+            // 
+            // label4
+            // 
+            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(134, 267);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(118, 13);
+            this.label4.TabIndex = 26;
+            this.label4.Text = "Automatic Updates:";
+            // 
+            // cmbAutomaticUpdates
+            // 
+            this.cmbAutomaticUpdates.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbAutomaticUpdates.FormattingEnabled = true;
+            this.helpProvider1.SetHelpString(this.cmbAutomaticUpdates, "Specifies where to get the text to display from");
+            this.cmbAutomaticUpdates.Items.AddRange(new object[] {
+            "On",
+            "Off"});
+            this.cmbAutomaticUpdates.Location = new System.Drawing.Point(257, 264);
+            this.cmbAutomaticUpdates.Name = "cmbAutomaticUpdates";
+            this.helpProvider1.SetShowHelp(this.cmbAutomaticUpdates, true);
+            this.cmbAutomaticUpdates.Size = new System.Drawing.Size(46, 21);
+            this.cmbAutomaticUpdates.TabIndex = 27;
+            this.cmbAutomaticUpdates.SelectedIndexChanged += new System.EventHandler(this.ValueChanged);
             // 
             // frmSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnClose;
-            this.ClientSize = new System.Drawing.Size(363, 317);
+            this.ClientSize = new System.Drawing.Size(363, 338);
+            this.Controls.Add(this.cmbAutomaticUpdates);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.btnCheckForUpdates);
             this.Controls.Add(this.btnTest);
             this.Controls.Add(this.btnOpenFileDialog);
             this.Controls.Add(this.nudSecondsToDisplayQuotePerWord);
@@ -446,5 +499,9 @@
         private System.Windows.Forms.NumericUpDown nudSecondsToDisplayQuotePerWord;
         private System.Windows.Forms.Button btnOpenFileDialog;
         private System.Windows.Forms.Button btnTest;
+        private System.Windows.Forms.Button btnCheckForUpdates;
+        private System.Windows.Forms.HelpProvider helpProvider1;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.ComboBox cmbAutomaticUpdates;
     }
 }
